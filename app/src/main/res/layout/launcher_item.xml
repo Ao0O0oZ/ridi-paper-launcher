@@ -11,45 +11,28 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="center_horizontal|center_vertical"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="0.1dp"
-                android:layout_weight="1" />
-
-            <cn.modificator.launcher.widgets.RatioImageView
-                android:id="@+id/appImage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                app:ratioHeight="1"
-                app:ratioWidth="1"
-                app:reference="width"
-                tools:src="@mipmap/ic_launcher" />
-
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="0.1dp"
-                android:layout_weight="1" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/appImage"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_gravity="center_horizontal"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            tools:src="@mipmap/ic_launcher" />
 
         <cn.modificator.launcher.widgets.ObserverFontTextView
             android:id="@+id/appName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#000000"
+            android:layout_height="44dp"
+            android:gravity="top|center_horizontal"
+            android:includeFontPadding="false"
             android:maxLines="2"
-            android:textSize="30sp" />
-        <!--android:singleLine="true"-->
-        <!--10sp-->
+            android:minLines="2"
+            android:textColor="#000000"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <LinearLayout

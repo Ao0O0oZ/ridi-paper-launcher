@@ -103,12 +103,24 @@ public class IconCache {
 
   /** 带缓存的标签加载 */
   public CharSequence getLabel(String packageName, ResolveInfo info, PackageManager pm) {
+    CharSequence preferred = getPreferredLabel(packageName);
+    if (preferred != null) return preferred;
     CharSequence cached = labelCache.get(packageName);
     if (cached == null) {
       cached = info.loadLabel(pm);
       labelCache.put(packageName, cached);
     }
     return cached;
+  }
+
+  private CharSequence getPreferredLabel(String packageName) {
+    if ("mark.via".equals(packageName)) return "浏览器";
+    if ("com.speedsoftware.rootexplorer".equals(packageName)) return "文件管理";
+    if ("org.koreader.launcher".equals(packageName)) return "KOReader";
+    if ("top.fols.aapp.socketfilelistserver".equals(packageName)) return "局域网分享";
+    if ("jackpal.androidterm".equals(packageName)) return "终端模拟器";
+    if ("com.ridi.settings".equals(packageName)) return "设置";
+    return null;
   }
 
   /** 清除图标和标签缓存（应用安装/卸载时调用） */

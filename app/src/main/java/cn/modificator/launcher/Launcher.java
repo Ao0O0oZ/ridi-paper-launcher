@@ -1,6 +1,7 @@
 package cn.modificator.launcher;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
@@ -19,6 +20,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
@@ -26,9 +28,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -320,6 +325,10 @@ public class Launcher extends Activity
       lockScreen();
     } else if (AppDataCenter.WIFI_PACKAGE_NAME.equals(pkgName)) {
       WifiControl.onClickWifiItem();
+    } else if (AppDataCenter.RESTART_PACKAGE_NAME.equals(pkgName)) {
+      showRestartConfirmation();
+    } else if (AppDataCenter.CLEAR_BACKGROUND_PACKAGE_NAME.equals(pkgName)) {
+      showClearBackgroundConfirmation();
     } else {
       ComponentName comp = new ComponentName(info.activityInfo.packageName, info.activityInfo.name);
       Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -338,6 +347,10 @@ public class Launcher extends Activity
       showPowerMenu();
     } else if (AppDataCenter.WIFI_PACKAGE_NAME.equals(packageName)) {
       WifiControl.onLongClickWifiItem();
+    } else if (AppDataCenter.RESTART_PACKAGE_NAME.equals(packageName)) {
+      showRestartConfirmation();
+    } else if (AppDataCenter.CLEAR_BACKGROUND_PACKAGE_NAME.equals(packageName)) {
+      showClearBackgroundConfirmation();
     } else {
       showAppInfoDialog(info, packageName);
     }
@@ -345,6 +358,8 @@ public class Launcher extends Activity
 
   @Override
   public void onItemDeleteClick(ResolveInfo info) {
+    if (AppDataCenter.RESTART_PACKAGE_NAME.equals(info.activityInfo.packageName)
+        || AppDataCenter.CLEAR_BACKGROUND_PACKAGE_NAME.equals(info.activityInfo.packageName)) return;
     Intent deleteIntent = new Intent(Intent.ACTION_DELETE,
         Uri.parse("package:" + info.activityInfo.packageName));
     startActivity(deleteIntent);
@@ -389,6 +404,69 @@ public class Launcher extends Activity
         })
         .setPositiveButton(R.string.dialog_cancel, null)
         .show();
+  }
+
+  private void showRestartConfirmation() {
+    new AlertDialog.Builder(this)
+        .setTitle("重启设备")
+        .setMessage("现在重启电纸书？")
+        .setNegativeButton("取消", null)
+        .setPositiveButton("重启", new DialogInterface.OnClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which) {
+            try {
+              Runtime.getRuntime().exec(new String[] {"su", "-c", "reboot"});
+            } catch (Exception error) {
+              Toast.makeText(Launcher.this, "重启失败：" + error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+          }
+        }).show();
+  }
+
+  private void showClearBackgroundConfirmation() {
+    new AlertDialog.Builder(this)
+        .setTitle("清除后台")
+        .setMessage("清理第三方应用的后台进程，保留桌面、导航栏和正在使用的系统组件。")
+        .setNegativeButton("取消", null)
+        .setPositiveButton("清理", new DialogInterface.OnClickListener() {
+          @Override public void onClick(DialogInterface dialog, int which) {
+            clearBackgroundProcesses();
+          }
+        }).show();
+  }
+
+  private void clearBackgroundProcesses() {
+    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+    List<ActivityManager.RunningAppProcessInfo> processes = manager.getRunningAppProcesses();
+    if (processes == null) {
+      Toast.makeText(this, "未找到可清理的后台应用", Toast.LENGTH_SHORT).show();
+      return;
+    }
+    Set<String> candidates = new HashSet<>();
+    String ime = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+    String imePackage = ime == null ? "" : ime.split("/", 2)[0];
+    for (ActivityManager.RunningAppProcessInfo process : processes) {
+      if (process.importance < ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND
+          || process.pkgList == null) continue;
+      for (String pkg : process.pkgList) {
+        if (getPackageName().equals(pkg) || "com.ridi.bottombar".equals(pkg)
+            || "com.ridi.settings".equals(pkg) || "eu.chainfire.supersu".equals(pkg)
+            || imePackage.equals(pkg)) continue;
+        try {
+          ApplicationInfo app = getPackageManager().getApplicationInfo(pkg, 0);
+          if ((app.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) == 0) {
+            candidates.add(pkg);
+          }
+        } catch (PackageManager.NameNotFoundException ignored) { }
+      }
+    }
+    int cleared = 0;
+    for (String pkg : candidates) {
+      try {
+        manager.killBackgroundProcesses(pkg);
+        cleared++;
+      } catch (SecurityException ignored) { }
+    }
+    Toast.makeText(this, "已请求清理 " + cleared + " 个后台应用", Toast.LENGTH_LONG).show();
   }
 
   private void showAppInfoDialog(ResolveInfo info, final String packageName) {

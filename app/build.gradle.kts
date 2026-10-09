@@ -8,11 +8,11 @@ android {
     enableKotlin = false
 
     defaultConfig {
-        applicationId = "cn.modificator.launcher"
+        applicationId = "cn.modificator.launcher.clean"
         minSdk = 14
-        targetSdk = 36
-        versionCode = 30
-        versionName = "0.1.8.6"
+        targetSdk = 19
+        versionCode = 10
+        versionName = "1.7.1-ridi"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

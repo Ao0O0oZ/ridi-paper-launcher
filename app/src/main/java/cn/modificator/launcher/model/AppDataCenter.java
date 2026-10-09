@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +22,32 @@ import cn.modificator.launcher.widgets.LauncherAdapter;
  */
 public class AppDataCenter {
 
+  private static final String[] PREFERRED_ORDER = {
+      "com.ridi.settings",
+      "mark.via",
+      "org.koreader.launcher",
+      "com.speedsoftware.rootexplorer",
+      "top.fols.aapp.socketfilelistserver",
+      "jackpal.androidterm",
+      "com.neverland.alreader",
+      "org.geometerplus.zlibrary.ui.android",
+      "E-ink_Launcher.Restart",
+      "E-ink_Launcher.ClearBackground"
+  };
+
+  private static boolean isPreferredApp(String packageName) {
+    for (String preferred : PREFERRED_ORDER) {
+      if (preferred.equals(packageName)) return true;
+    }
+    return false;
+  }
+
   /** 虚拟包名：Wifi 控制入口 */
   public static final String WIFI_PACKAGE_NAME = "E-ink_Launcher.WiFi";
   /** 虚拟包名：一键锁屏入口 */
   public static final String LOCK_PACKAGE_NAME = "E-ink_Launcher.Lock";
+  public static final String RESTART_PACKAGE_NAME = "E-ink_Launcher.Restart";
+  public static final String CLEAR_BACKGROUND_PACKAGE_NAME = "E-ink_Launcher.ClearBackground";
 
   private final Context mContext;
   private final List<ResolveInfo> mApps = new ArrayList<>();
@@ -159,7 +182,8 @@ public class AppDataCenter {
     mApps.clear();
     for (ResolveInfo resolveInfo : mContext.getPackageManager().queryIntentActivities(mainIntent, 0)) {
       if ("cn.modificator.launcher.Launcher".equals(resolveInfo.activityInfo.name)) continue;
-      if (!hideApps.contains(resolveInfo.activityInfo.packageName)) {
+      if (isPreferredApp(resolveInfo.activityInfo.packageName)
+          && !hideApps.contains(resolveInfo.activityInfo.packageName)) {
         mApps.add(resolveInfo);
       }
     }
@@ -170,6 +194,8 @@ public class AppDataCenter {
     if (!hideApps.contains(WIFI_PACKAGE_NAME)) {
       mApps.add(createWifiIcon());
     }
+    if (!hideApps.contains(RESTART_PACKAGE_NAME)) mApps.add(createActionIcon(RESTART_PACKAGE_NAME, R.drawable.ic_restart_device));
+    if (!hideApps.contains(CLEAR_BACKGROUND_PACKAGE_NAME)) mApps.add(createActionIcon(CLEAR_BACKGROUND_PACKAGE_NAME, R.drawable.ic_clear_background));
     sortApps();
     updatePageCount();
   }
@@ -182,6 +208,8 @@ public class AppDataCenter {
     mApps.addAll(mContext.getPackageManager().queryIntentActivities(mainIntent, 0));
     mApps.add(createPowerIcon());
     mApps.add(createWifiIcon());
+    mApps.add(createActionIcon(RESTART_PACKAGE_NAME, R.drawable.ic_restart_device));
+    mApps.add(createActionIcon(CLEAR_BACKGROUND_PACKAGE_NAME, R.drawable.ic_clear_background));
     if (binder != null) {
       binder.setHideAppPkg(hideApps);
     }
@@ -206,6 +234,19 @@ public class AppDataCenter {
 
   private void sortApps() {
     Collections.sort(mApps, new AppSortComparator(mContext, mContext.getPackageManager(), sortMode));
+    Collections.sort(mApps, new Comparator<ResolveInfo>() {
+      @Override
+      public int compare(ResolveInfo a, ResolveInfo b) {
+        return preferredRank(a.activityInfo.packageName) - preferredRank(b.activityInfo.packageName);
+      }
+    });
+  }
+
+  private int preferredRank(String packageName) {
+    for (int i = 0; i < PREFERRED_ORDER.length; i++) {
+      if (PREFERRED_ORDER[i].equals(packageName)) return i;
+    }
+    return PREFERRED_ORDER.length;
   }
 
   // =========================================================================
@@ -225,6 +266,14 @@ public class AppDataCenter {
     resolveInfo.icon = R.drawable.ic_onekeylock;
     resolveInfo.activityInfo = new ActivityInfo();
     resolveInfo.activityInfo.packageName = LOCK_PACKAGE_NAME;
+    return resolveInfo;
+  }
+
+  private ResolveInfo createActionIcon(String packageName, int icon) {
+    ResolveInfo resolveInfo = new ResolveInfo();
+    resolveInfo.icon = icon;
+    resolveInfo.activityInfo = new ActivityInfo();
+    resolveInfo.activityInfo.packageName = packageName;
     return resolveInfo;
   }
 }

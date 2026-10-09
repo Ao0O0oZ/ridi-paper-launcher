@@ -148,7 +148,9 @@ public class AppItemBinder {
 
       boolean canDelete = false;
       if (!AppDataCenter.WIFI_PACKAGE_NAME.equals(pkg)
-          && !AppDataCenter.LOCK_PACKAGE_NAME.equals(pkg)) {
+          && !AppDataCenter.LOCK_PACKAGE_NAME.equals(pkg)
+          && !AppDataCenter.RESTART_PACKAGE_NAME.equals(pkg)
+          && !AppDataCenter.CLEAR_BACKGROUND_PACKAGE_NAME.equals(pkg)) {
         try {
           canDelete = (packageManager.getPackageInfo(pkg, 0).applicationInfo.flags
               & ApplicationInfo.FLAG_SYSTEM) == 0;
@@ -176,6 +178,12 @@ public class AppItemBinder {
     } else if (AppDataCenter.LOCK_PACKAGE_NAME.equals(pkg)) {
       loadIcon(holder.appImage, pkg, R.drawable.ic_onekeylock, customIcons);
       holder.appName.setText(R.string.item_lockscreen);
+    } else if (AppDataCenter.RESTART_PACKAGE_NAME.equals(pkg)) {
+      loadIcon(holder.appImage, pkg, R.drawable.ic_restart_device, customIcons);
+      holder.appName.setText("重启设备");
+    } else if (AppDataCenter.CLEAR_BACKGROUND_PACKAGE_NAME.equals(pkg)) {
+      loadIcon(holder.appImage, pkg, R.drawable.ic_clear_background, customIcons);
+      holder.appName.setText("清除后台");
     } else {
       loadIcon(holder.appImage, pkg, info, customIcons);
       holder.appName.setText(iconCache != null

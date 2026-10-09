@@ -7,6 +7,17 @@
 /build
 /captures
 *.apk
+*.idsig
+*.aab
+*.jks
+*.keystore
+*.pem
+*.p12
+.DS_Store
+/companion/**/build/
+/companion/**/Ridi*.apk
+/app/release/mapping.txt
+/app/release/output.json
 projectFilesBackup
 /.idea/sonarlint/issuestore
 .idea
