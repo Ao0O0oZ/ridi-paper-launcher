@@ -20,14 +20,17 @@ This project adapts [Modificator/E-Ink-Launcher](https://github.com/Modificator/
 ./gradlew :app:assembleDebug
 ```
 
-桌面 APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。两个辅助应用使用 Android SDK Build Tools `36.1.0`；可用 `RIDI_BUILD_TOOLS_VERSION` 指定其他已安装版本：
+桌面 APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。三个辅助应用使用 Android SDK Build Tools `36.1.0`；可用 `RIDI_BUILD_TOOLS_VERSION` 指定其他已安装版本：
 
 ```sh
 RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/bottom-bar/build.sh
 RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/ridi-settings/build.sh
+RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/ridi-calendar/build.sh
 ```
 
 辅助应用 APK 分别输出到各自的 `build/` 目录。脚本默认查找 `~/.android/debug.keystore`，不会把签名文件放进仓库。**升级已安装的应用必须使用与设备上现有 APK 相同的签名密钥**；新密钥签出的 APK 不能直接覆盖安装。
+
+使用 Codex、Copilot 等 Agent 构建时，可直接引用 [build-ridi-paper SKILL](.github/skills/build-ridi-paper/SKILL.md)。它包含环境检查、四个 APK 的构建命令、测试及隐私文件排除规则。
 
 ## 图标与设备
 
@@ -45,4 +48,4 @@ RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./
 
 ## 上游与发布
 
-本地分支为 `ridi-paper`，上游分支为 `v0.x`。GitHub 仓库默认保持私有；将来公开发布前，应确认自制图标的许可及设备专用功能说明。设备抓屏只保存在本机，不纳入 Git。
+本地分支为 `ridi-paper`，上游分支为 `v0.x`。仓库公开提供源码；自制图标仍应由权利人确认后再用于其他项目。设备抓屏和当前锁屏壁纸只保存在本机，不纳入 Git。
