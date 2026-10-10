@@ -1,5 +1,6 @@
 package com.ridi.settings;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,6 +17,20 @@ public final class MainActivity extends BaseActivity {
         action("蓝牙设置", BluetoothSettingsActivity.class);
         action("背光设置", LightSettingsActivity.class);
         action("字体设置", FontSettingsActivity.class);
+        Button lockScreen = action("锁屏背景设置", MainActivity.class);
+        lockScreen.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClassName("com.android.settings",
+                        "com.android.settings.standby.StandbySettingsActivity");
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException error) {
+                    Toast.makeText(MainActivity.this, "此设备未提供独立锁屏背景设置", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        action("终端模拟器配色", TerminalSettingsActivity.class);
         action("底部导航栏设置", NavigationSettingsActivity.class);
         action("输入法设置与测试", InputSettingsActivity.class);
         Button advanced = action("高级系统设置", MainActivity.class);

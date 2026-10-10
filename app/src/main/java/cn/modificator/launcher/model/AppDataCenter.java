@@ -24,6 +24,7 @@ public class AppDataCenter {
 
   private static final String[] PREFERRED_ORDER = {
       "com.ridi.settings",
+      "com.ridi.calendar",
       "mark.via",
       "org.koreader.launcher",
       "com.speedsoftware.rootexplorer",

@@ -23,7 +23,7 @@ public final class LightSettingsActivity extends BaseActivity {
         toggle.setTextSize(19);
         content.addView(toggle, full(dp(54)));
         value = note("");
-        brightness = new SeekBar(this);
+        brightness = alignedSeekBar(58);
         brightness.setMax(244);
         content.addView(brightness, full(dp(58)));
         note("调节范围 11–255；关闭背光时会保留当前亮度。");

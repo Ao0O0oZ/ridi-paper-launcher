@@ -40,7 +40,7 @@ public final class FontSettingsActivity extends BaseActivity {
         western.setSelection(contains("/system/etc/system_fonts.xml", "RidiTimesNewRomanBold.ttf") ? 0 : 1);
 
         scaleLabel = note("");
-        scale = new SeekBar(this);
+        scale = alignedSeekBar(54);
         scale.setMax(12);
         Configuration config = getResources().getConfiguration();
         int initial = Math.round((config.fontScale - 0.8f) * 20f);

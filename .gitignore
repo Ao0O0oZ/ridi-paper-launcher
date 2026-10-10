@@ -16,6 +16,13 @@
 .DS_Store
 /companion/**/build/
 /companion/**/Ridi*.apk
+/companion/ridi-calendar/screenshots/
+/device-backups/
+/device-screenshots/
+/wallpapers/
+/assets/lockscreen/
+/assets/wallpapers/
+*.log
 /app/release/mapping.txt
 /app/release/output.json
 projectFilesBackup

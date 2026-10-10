@@ -1,15 +1,16 @@
 # RIDI Paper Launcher
 
-This project adapts [Modificator/E-Ink-Launcher](https://github.com/Modificator/E-Ink-Launcher), branch `v0.x`, for a RIDI PAPER (Android 4.4.2). The upstream Git history and Apache-2.0 license are retained. The `upstream` Git remote points to the original repository; no GitHub fork or release has been created yet.
+This project adapts [Modificator/E-Ink-Launcher](https://github.com/Modificator/E-Ink-Launcher), branch `v0.x`, for a RIDI PAPER (Android 4.4.2). The upstream Git history and Apache-2.0 license are retained. The `upstream` Git remote points to the original repository.
 
-本仓库保存当前电纸书桌面系统的**源码**，不包含设备固件、个人壁纸、字体文件、签名私钥或历史 APK。它由三个部分组成：
+本仓库保存当前电纸书桌面系统的**源码**，不包含设备固件、个人壁纸、实机截图、字体文件、个人签名私钥或历史 APK。项目包括：
 
 | 目录 | 内容 |
 | --- | --- |
 | `app/` | 五列桌面、应用筛选与命名、重启和清除后台入口 |
 | `companion/bottom-bar/` | 底部导航栏、背光、Wi-Fi、日期和电量显示 |
-| `companion/ridi-settings/` | Wi-Fi、蓝牙、背光、导航栏、输入法及字体设置 |
+| `companion/ridi-settings/` | Wi-Fi、蓝牙、背光、字体、锁屏背景、终端配色、导航栏及输入法设置 |
 | `assets/desktop-icons/` | 当前桌面使用的外部应用图标，按包名命名 |
+| `companion/ridi-calendar/` | Android 4.4 电纸书日历应用，含天气、农历、节假日和本地待办 |
 
 ## 构建
 
@@ -40,6 +41,8 @@ RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./
 
 此分支针对一台已取得 root 权限并完成系统适配的 RIDI PAPER。底部导航栏需要悬浮窗和无障碍权限；字体切换依赖设备上的指定字体与 `su`。直接安装到未改造的 Android 设备，无法保证所有功能可用。
 
+设置中的“锁屏背景设置”打开 RIDI 原厂的休眠画面页面，可单独选择锁屏图片，不会改变桌面壁纸。“终端模拟器配色”把 `jackpal.androidterm` 的终端内容区设为黑字白底，保留工具栏；需要设备已安装并至少打开过一次终端模拟器，且 `su` 可用。操作会关闭当前终端会话，重新打开后生效。
+
 ## 上游与发布
 
-本地分支为 `ridi-paper`，上游分支为 `v0.x`。需要发布时，可在 GitHub 上 Fork 上游仓库，把该 Fork 添加为 `origin`，再推送 `ridi-paper` 分支。发布前应确认自制图标的许可、签名策略和设备专用功能说明。
+本地分支为 `ridi-paper`，上游分支为 `v0.x`。GitHub 仓库默认保持私有；将来公开发布前，应确认自制图标的许可及设备专用功能说明。设备抓屏只保存在本机，不纳入 Git。

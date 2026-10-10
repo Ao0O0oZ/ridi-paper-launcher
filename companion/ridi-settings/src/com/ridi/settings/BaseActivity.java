@@ -2,6 +2,14 @@ package com.ridi.settings;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -10,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 abstract class BaseActivity extends Activity {
@@ -73,6 +82,61 @@ abstract class BaseActivity extends Activity {
 
     protected LinearLayout.LayoutParams full(int height) {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height);
+    }
+
+    protected SeekBar alignedSeekBar(int heightDp) {
+        SeekBar bar = new SeekBar(this);
+        Drawable[] tracks = {
+                new CenteredTrack(Color.GRAY),
+                new ClipDrawable(new CenteredTrack(Color.BLACK), Gravity.LEFT, ClipDrawable.HORIZONTAL)
+        };
+        LayerDrawable progress = new LayerDrawable(tracks);
+        progress.setId(0, android.R.id.background);
+        progress.setId(1, android.R.id.progress);
+        bar.setProgressDrawable(progress);
+        bar.setThumb(new CenteredThumb(heightDp));
+        bar.setThumbOffset(dp(10));
+        bar.setPadding(dp(10), 0, dp(10), 0);
+        return bar;
+    }
+
+    private final class CenteredTrack extends Drawable {
+        private final Paint paint = new Paint();
+
+        CenteredTrack(int color) { paint.setColor(color); }
+
+        @Override public void draw(Canvas canvas) {
+            Rect bounds = getBounds();
+            float middle = bounds.exactCenterY();
+            float half = dp(4) / 2f;
+            canvas.drawRect(bounds.left, middle - half, bounds.right, middle + half, paint);
+        }
+
+        @Override public void setAlpha(int alpha) { paint.setAlpha(alpha); }
+        @Override public void setColorFilter(ColorFilter filter) { paint.setColorFilter(filter); }
+        @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
+        @Override public int getIntrinsicHeight() { return dp(4); }
+    }
+
+    private final class CenteredThumb extends Drawable {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final int height;
+
+        CenteredThumb(int heightDp) {
+            paint.setColor(Color.BLACK);
+            height = dp(heightDp);
+        }
+
+        @Override public void draw(Canvas canvas) {
+            Rect bounds = getBounds();
+            canvas.drawCircle(bounds.exactCenterX(), bounds.exactCenterY(), dp(10), paint);
+        }
+
+        @Override public void setAlpha(int alpha) { paint.setAlpha(alpha); }
+        @Override public void setColorFilter(ColorFilter filter) { paint.setColorFilter(filter); }
+        @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
+        @Override public int getIntrinsicWidth() { return dp(20); }
+        @Override public int getIntrinsicHeight() { return height; }
     }
 
     protected int dp(int value) {
