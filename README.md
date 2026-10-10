@@ -1,51 +1,33 @@
 # RIDI Paper Launcher
 
-This project adapts [Modificator/E-Ink-Launcher](https://github.com/Modificator/E-Ink-Launcher), branch `v0.x`, for a RIDI PAPER (Android 4.4.2). The upstream Git history and Apache-2.0 license are retained. The `upstream` Git remote points to the original repository.
+适用于 RIDI PAPER 电纸书（Android 4.4.2）的桌面系统，基于 [E-Ink Launcher](https://github.com/Modificator/E-Ink-Launcher) 改造。
 
-本仓库保存当前电纸书桌面系统的**源码**，不包含设备固件、个人壁纸、实机截图、字体文件、个人签名私钥或历史 APK。项目包括：
+项目包含四个应用：
 
-| 目录 | 内容 |
-| --- | --- |
-| `app/` | 五列桌面、应用筛选与命名、重启和清除后台入口 |
-| `companion/bottom-bar/` | 底部导航栏、背光、Wi-Fi、日期和电量显示 |
-| `companion/ridi-settings/` | Wi-Fi、蓝牙、背光、字体、锁屏背景、终端配色、导航栏及输入法设置 |
-| `assets/desktop-icons/` | 当前桌面使用的外部应用图标，按包名命名 |
-| `companion/ridi-calendar/` | Android 4.4 电纸书日历应用，含天气、农历、节假日和本地待办 |
+- **桌面**：五列应用列表和常用快捷操作。
+- **底部栏**：返回、主页、刷新、背光、Wi-Fi 和电量显示。
+- **设置**：背光、字体、锁屏背景、终端配色等设备设置。
+- **日历**：农历、节假日、天气和待办事项，支持横竖屏。
 
-## 构建
+## 快速构建
 
-需要 JDK 17、Android SDK Platform 19，以及仓库 Gradle 配置对应的 Build Tools。先设置 `JAVA_HOME` 和 `ANDROID_HOME`：
+使用 Codex、Copilot 等 Agent 时，让它使用 [build-ridi-paper SKILL](.github/skills/build-ridi-paper/SKILL.md) 构建项目即可。
+
+手动构建需要 **JDK 17** 和 **Android SDK**（Platform 19、Platform 36、Build Tools 36.1.0）。设置 `JAVA_HOME` 和 `ANDROID_HOME` 后，在仓库根目录运行：
 
 ```sh
 ./gradlew :app:assembleDebug
+sh companion/bottom-bar/build.sh
+sh companion/ridi-settings/build.sh
+sh companion/ridi-calendar/build.sh
 ```
 
-桌面 APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。三个辅助应用使用 Android SDK Build Tools `36.1.0`；可用 `RIDI_BUILD_TOOLS_VERSION` 指定其他已安装版本：
+生成的 APK 位于 `app/build/outputs/apk/debug/` 和各辅助应用的 `build/` 目录。辅助应用默认使用本机的 `~/.android/debug.keystore` 签名；升级已安装的应用时，须使用原来的签名密钥。
 
-```sh
-RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/bottom-bar/build.sh
-RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/ridi-settings/build.sh
-RIDI_SIGNING_KEYSTORE=/path/to/private.keystore RIDI_SIGNING_ALIAS=your_alias ./companion/ridi-calendar/build.sh
-```
+日历使用方法与测试命令见 [日历说明](companion/ridi-calendar/README.md)。设备上的桌面图标可用 `./scripts/deploy-desktop-icons.sh DEVICE_SERIAL` 同步。
 
-辅助应用 APK 分别输出到各自的 `build/` 目录。脚本默认查找 `~/.android/debug.keystore`，不会把签名文件放进仓库。**升级已安装的应用必须使用与设备上现有 APK 相同的签名密钥**；新密钥签出的 APK 不能直接覆盖安装。
+## 使用提示
 
-使用 Codex、Copilot 等 Agent 构建时，可直接引用 [build-ridi-paper SKILL](.github/skills/build-ridi-paper/SKILL.md)。它包含环境检查、四个 APK 的构建命令、测试及隐私文件排除规则。
+本项目针对已适配的 RIDI PAPER。底部栏需要悬浮窗和无障碍权限；部分设置需要 root 权限。其他 Android 设备可能需要调整。
 
-## 图标与设备
-
-外部桌面图标由桌面从 `/sdcard/Documents/E-Ink Launcher/icon/` 读取。设备已通过 ADB 连接后，可运行：
-
-```sh
-./scripts/deploy-desktop-icons.sh DEVICE_SERIAL
-```
-
-`DEVICE_SERIAL` 可以是 `adb devices` 显示的 USB 序列号或 `IP:5555`。项目不保存 Wi-Fi 地址、无线 ADB 凭据或设备数据。
-
-此分支针对一台已取得 root 权限并完成系统适配的 RIDI PAPER。底部导航栏需要悬浮窗和无障碍权限；字体切换依赖设备上的指定字体与 `su`。直接安装到未改造的 Android 设备，无法保证所有功能可用。
-
-设置中的“锁屏背景设置”打开 RIDI 原厂的休眠画面页面，可单独选择锁屏图片，不会改变桌面壁纸。“终端模拟器配色”把 `jackpal.androidterm` 的终端内容区设为黑字白底，保留工具栏；需要设备已安装并至少打开过一次终端模拟器，且 `su` 可用。操作会关闭当前终端会话，重新打开后生效。
-
-## 上游与发布
-
-本地分支为 `ridi-paper`，上游分支为 `v0.x`。仓库公开提供源码；自制图标仍应由权利人确认后再用于其他项目。设备抓屏和当前锁屏壁纸只保存在本机，不纳入 Git。
+原项目采用 Apache-2.0 许可证；本项目保留了上游历史。新增图标的使用权请以图标权利人的授权为准。

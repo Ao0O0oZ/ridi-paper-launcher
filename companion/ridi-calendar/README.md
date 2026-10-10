@@ -36,4 +36,3 @@ JAVA_HOME=/path/to/jdk17 sh companion/ridi-calendar/tests/run.sh
 ```
 
 本地测试覆盖闰年、跨月跨年、农历初一、闰月、春节、中秋、清明、冬至。
-实机运行截图仅保留在本地 `screenshots/` 目录，不上传到 GitHub，以免公开设备的城市、日期、电量和个人数据。这台设备的竖屏 `screencap` 输出沿用横向 framebuffer，本地的 `portrait-final.png` 已旋转为正常阅读方向。
