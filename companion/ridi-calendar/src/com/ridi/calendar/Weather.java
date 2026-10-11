@@ -120,6 +120,29 @@ public final class Weather {
     for(int i=0;i<6;i++){Forecast f=new Forecast(); f.date=dates.getString(i); f.label=f.date.substring(5).replace('-','/'); f.code=codes.getInt(i); f.high=high.getDouble(i); f.low=low.getDouble(i);d.days[i]=f;}
     return d;
   }
-  public static String description(int code) { if(code==0)return "晴"; if(code<=2)return "多云"; if(code==3)return "阴"; if(code==45||code==48)return "雾"; if(code>=95)return "雷雨"; if(code>=71&&code<=86)return "雪"; if(code>=61&&code<=67)return code<=61?"小雨":code<=63?"中雨":"大雨"; if(code>=80&&code<=82)return code==80?"小雨":code==81?"中雨":"大雨"; if(code>=51&&code<=57)return "小雨"; return "未知"; }
+  /** QWeather Icons font glyphs for Open-Meteo/WMO weather codes. */
+  public static int iconGlyph(int code) {
+    if(code==0)return 0xf101; // 100: clear
+    if(code==1)return 0xf104; // 103: partly cloudy
+    if(code==2)return 0xf102; // 101: cloudy, sun and clouds
+    if(code==3)return 0xf105; // 104: overcast, clouds only
+    if(code==45||code==48)return 0xf12f; // 501: fog
+    if(code>=51&&code<=57)return 0xf10f; // 305: light rain
+    if(code==61)return 0xf10f;
+    if(code==63||code==66)return 0xf110; // 306: moderate rain
+    if(code==65||code==67)return 0xf111; // 307: heavy rain
+    if(code==71)return 0xf120; // 400: light snow
+    if(code==73)return 0xf121; // 401: moderate snow
+    if(code==75)return 0xf122; // 402: heavy snow
+    if(code==77)return 0xf12d; // 499: snow
+    if(code==80)return 0xf10a; // 300: showers
+    if(code==81||code==82)return 0xf10b; // 301: heavy showers
+    if(code==85)return 0xf127; // 407: snow showers
+    if(code==86)return 0xf128; // 408: heavy snow showers
+    if(code==95)return 0xf10c; // 302: thunderstorm
+    if(code==96||code==99)return 0xf10e; // 304: thunderstorm with hail
+    return 0xf146; // 999: unknown
+  }
+  public static String description(int code) { if(code==0)return "晴"; if(code==1)return "晴间多云"; if(code==2)return "多云"; if(code==3)return "阴"; if(code==45||code==48)return "雾"; if(code>=95)return "雷雨"; if(code>=71&&code<=86)return "雪"; if(code>=61&&code<=67)return code<=61?"小雨":code<=63?"中雨":"大雨"; if(code>=80&&code<=82)return code==80?"小雨":code==81?"中雨":"大雨"; if(code>=51&&code<=57)return "小雨"; return "未知"; }
   public String temp(double c){double t=fahrenheit()?c*9/5+32:c;return Math.round(t)+(fahrenheit()?"℉":"℃");}
 }

@@ -14,15 +14,16 @@ import java.util.List;
 /** Fixed reference proportions, scaled to the actual content area in either orientation. */
 public final class CalendarScreen extends View {
   public interface Listener { void previous(); void next(); void today(); void select(Calendar day); void toggle(TodoStore.Item item); void edit(TodoStore.Item item); void add(); void settings(); }
-  private static final int BLACK=Color.BLACK, WHITE=Color.WHITE;
+  private static final int BLACK=Color.BLACK, WHITE=Color.WHITE, ADJACENT=Color.rgb(128,128,128);
   private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG); private final List<Hit> hits=new ArrayList<Hit>();
+  private final android.graphics.Typeface weatherIcons;
   private final Listener listener; private final HolidaySchedule holidays; private final TodoStore todos;
   private Calendar shown, selected; private Weather.Data weather; private Weather weatherStore; private List<TodoStore.Item> selectedTodos=new ArrayList<TodoStore.Item>();
   private final List<Cell> monthCells=new ArrayList<Cell>();
   private float sx,sy; private boolean landscape;
   private static final class Hit { RectF r; Runnable action; Hit(float l,float t,float r,float b,Runnable a){this.r=new RectF(l,t,r,b);action=a;} }
   private static final class Cell { Calendar day; String lunar,note,badge; boolean hasTodo,inMonth; }
-  public CalendarScreen(Context context,Listener listener,HolidaySchedule holidays,TodoStore todos,Weather weatherStore) { super(context); this.listener=listener;this.holidays=holidays;this.todos=todos;this.weatherStore=weatherStore;p.setColor(BLACK);setLayerType(View.LAYER_TYPE_SOFTWARE,null); }
+  public CalendarScreen(Context context,Listener listener,HolidaySchedule holidays,TodoStore todos,Weather weatherStore) { super(context); this.listener=listener;this.holidays=holidays;this.todos=todos;this.weatherStore=weatherStore;weatherIcons=android.graphics.Typeface.createFromAsset(context.getAssets(),"qweather-icons.ttf");p.setColor(BLACK);setLayerType(View.LAYER_TYPE_SOFTWARE,null); }
   public void update(Calendar shown,Calendar selected,Weather.Data data){this.shown=(Calendar)shown.clone();this.selected=(Calendar)selected.clone();this.weather=data;selectedTodos=todos.forDate(CalendarEngine.key(selected));prepareMonth();invalidate();}
   private void prepareMonth(){monthCells.clear();Calendar first=CalendarEngine.date(shown.get(Calendar.YEAR),shown.get(Calendar.MONTH)+1,1);int offset=CalendarEngine.mondayOffset(first);int rows=(offset+first.getActualMaximum(Calendar.DAY_OF_MONTH)+6)/7;Calendar day=(Calendar)first.clone();day.add(Calendar.DAY_OF_MONTH,-offset);for(int i=0;i<rows*7;i++){Cell cell=new Cell();cell.day=(Calendar)day.clone();CalendarEngine.Info info=CalendarEngine.describe(day);cell.lunar=info.lunarDay;cell.note=info.annotation;cell.badge=holidays.badge(day);cell.hasTodo=todos.hasItems(CalendarEngine.key(day));cell.inMonth=day.get(Calendar.MONTH)==shown.get(Calendar.MONTH);monthCells.add(cell);day.add(Calendar.DAY_OF_MONTH,1);}}
   public void refreshTodos(){selectedTodos=todos.forDate(CalendarEngine.key(selected));prepareMonth();if(landscape)invalidate(0,(int)(615*sy),getWidth(),getHeight());else invalidate(0,(int)(605*sy),getWidth(),getHeight());}
@@ -86,11 +87,9 @@ public final class CalendarScreen extends View {
   }
   private void drawPin(Canvas c,float x,float y){p.setColor(BLACK);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3.5f);android.graphics.Path pin=new android.graphics.Path();pin.moveTo(x,y+14);pin.cubicTo(x-20,y-13,x+20,y-13,x,y+14);c.drawPath(pin,p);c.drawCircle(x,y-2,3.5f,p);p.setStyle(Paint.Style.FILL);}
   private void drawWeatherIcon(Canvas c,float x,float y,int code,float radius){
-    p.setColor(BLACK);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);
-    if(code==0){c.drawCircle(x,y,radius*.6f,p);for(int i=0;i<8;i++){double a=i*Math.PI/4;c.drawLine(x+(float)Math.cos(a)*radius,y+(float)Math.sin(a)*radius,x+(float)Math.cos(a)*radius*1.4f,y+(float)Math.sin(a)*radius*1.4f,p);}}
-    else if(code>=71&&code<=86){c.drawLine(x-radius,y,x+radius,y,p);c.drawLine(x,y-radius,x,y+radius,p);c.drawLine(x-radius*.7f,y-radius*.7f,x+radius*.7f,y+radius*.7f,p);c.drawLine(x-radius*.7f,y+radius*.7f,x+radius*.7f,y-radius*.7f,p);}
-    else {c.drawArc(new RectF(x-radius,y-radius*.6f,x+radius,y+radius*.7f),185,170,false,p);c.drawLine(x-radius*.9f,y+radius*.55f,x+radius*.9f,y+radius*.55f,p);if(code>=51){c.drawLine(x-radius*.5f,y+radius,x-radius*.7f,y+radius*1.35f,p);c.drawLine(x+radius*.4f,y+radius,x+radius*.2f,y+radius*1.35f,p);}}
-    p.setStyle(Paint.Style.FILL);
+    String glyph=String.valueOf((char)Weather.iconGlyph(code));
+    p.setColor(BLACK);p.setStyle(Paint.Style.FILL);p.setTypeface(weatherIcons);p.setTextSize(radius*2.4f);
+    c.drawText(glyph,x-p.measureText(glyph)/2f,y-(p.ascent()+p.descent())/2f,p);
   }
   private void drawMonth(Canvas c,float l,float t,float r,float b){
     int year=shown.get(Calendar.YEAR),month=shown.get(Calendar.MONTH)+1;float width=r-l;float titleH=74,weekdayH=53;
@@ -103,9 +102,9 @@ public final class CalendarScreen extends View {
     int rows=monthCells.size()/7;float top=t+titleH+weekdayH;float ch=(b-top)/rows;float cw=width/7;
     Calendar today=CalendarEngine.today();
     for(int row=0;row<rows;row++)for(int col=0;col<7;col++){
-      Cell cell=monthCells.get(row*7+col);final Calendar day=cell.day;float x=l+col*cw,y=top+row*ch;boolean isToday=CalendarEngine.sameDay(day,today);boolean inMonth=cell.inMonth;
+      Cell cell=monthCells.get(row*7+col);final Calendar day=cell.day;float x=l+col*cw,y=top+row*ch;boolean inMonth=cell.inMonth;boolean isToday=inMonth&&CalendarEngine.sameDay(day,today);
       if(isToday){p.setColor(BLACK);c.drawRoundRect(new RectF(x+12,y+5,x+cw-12,y+ch-6),7,7,p);}
-      int ink=isToday?WHITE:BLACK;float small=Math.max(20,Math.min(25,ch*.22f));
+      int ink=isToday?WHITE:(inMonth?BLACK:ADJACENT);float small=Math.max(20,Math.min(25,ch*.22f));
       centered(c,Integer.toString(day.get(Calendar.DAY_OF_MONTH)),x+cw/2,y+ch*.36f,inMonth?Math.min(40,ch*.36f):Math.min(32,ch*.31f),inMonth,ink);
       centered(c,cell.lunar,x+cw/2,y+ch*.64f,small,false,ink);
       String annotation=cell.note;if(annotation.length()>4)annotation=annotation.substring(0,4);

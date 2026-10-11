@@ -1,0 +1,5 @@
+QWeather Icons font by QWeather
+Source: https://github.com/qwd/Icons (revision d7d4ef4)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+The original font file is embedded without modification. Weather code mappings and display sizing are maintained by this application.

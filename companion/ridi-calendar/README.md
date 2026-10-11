@@ -1,6 +1,6 @@
 # RIDI 日历
 
-面向 Android 4.4.2 / API 19 电纸书的原生黑白日历。竖屏显示今日、天气、月历和待办；横屏改为左侧今日与待办、右侧天气与月历。
+面向 Android 4.4.2 / API 19 电纸书的原生日历。竖屏显示今日、天气、月历和待办；横屏改为左侧今日与待办、右侧天气与月历。相邻月份日期显示为灰色。
 
 ## 构建和安装
 
@@ -26,6 +26,8 @@ adb install -r companion/ridi-calendar/build/RidiCalendar.apk
 ## 数据来源与范围
 
 农历与二十四节气使用 [lunar-java 1.7.7](https://github.com/6tail/lunar-java)（MIT，许可证随 `libs/` 提供）。天气优先使用 [Open-Meteo](https://open-meteo.com/en/docs)；Android 4.4 无法与其服务器协商加密套件时，自动回退到 [MET Norway Locationforecast](https://api.met.no/weatherapi/locationforecast/2.0/documentation) 的真实预报。旧系统在城市搜索不可用时支持 `ChineseCities.java` 中列出的主要城市。联网只用于天气。
+
+天气图标来自 [QWeather Icons](https://github.com/qwd/Icons)，按 CC BY 4.0 授权使用；图标字体已打包，离线也能显示。
 
 `assets/holidays.csv` 当前包含 2026 年国务院办公厅公布的休假与调休安排。月历用“休”标记放假日、“工”标记调休工作日（设备当前字体缺少“班”字）；没有权威年度配置的日期不显示标记。后续年度可按同一格式添加数据并重新构建。
 
