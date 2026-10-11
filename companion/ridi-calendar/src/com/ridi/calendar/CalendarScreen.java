@@ -31,6 +31,7 @@ public final class CalendarScreen extends View {
   private void line(Canvas c,float x1,float y1,float x2,float y2,float width){p.setColor(BLACK);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(width);c.drawLine(x1,y1,x2,y2,p);p.setStyle(Paint.Style.FILL);}
   private void rect(Canvas c,float l,float t,float r,float b,boolean fill){p.setColor(BLACK);p.setStyle(fill?Paint.Style.FILL:Paint.Style.STROKE);p.setStrokeWidth(1.5f);c.drawRect(l,t,r,b,p);p.setStyle(Paint.Style.FILL);}
   private void txt(Canvas c,String s,float x,float baseline,float size,boolean bold,boolean serif,int color){p.setColor(color);p.setTypeface(serif?android.graphics.Typeface.create("serif",bold?1:0):android.graphics.Typeface.create("sans-serif",bold?1:0));p.setTextSize(size);p.setStyle(Paint.Style.FILL);c.drawText(s,x,baseline,p);}
+  private void dateText(Canvas c,String s,float x,float baseline,float size){p.setColor(BLACK);p.setTypeface(android.graphics.Typeface.create("serif",android.graphics.Typeface.BOLD));p.setTextSize(size);p.setStyle(Paint.Style.FILL_AND_STROKE);p.setStrokeWidth(1.2f);c.drawText(s,x,baseline,p);p.setStyle(Paint.Style.FILL);}
   private void centered(Canvas c,String s,float cx,float baseline,float size,boolean bold,int color){p.setTypeface(android.graphics.Typeface.create("serif",bold?1:0));p.setTextSize(size);txt(c,s,cx-p.measureText(s)/2,baseline,size,bold,true,color);}
   private void hit(float l,float t,float r,float b,Runnable a){hits.add(new Hit(l,t,r,b,a));}
   @Override protected void onDraw(Canvas actual) {
@@ -46,16 +47,16 @@ public final class CalendarScreen extends View {
     drawWeather(c,415,20,1420,306,true);line(c,414,324,1420,324,1.5f);drawMonth(c,414,337,1420,968);
   }
   private void drawDate(Canvas c,float l,float t,float r,float b,boolean wide){
-    Calendar now=CalendarEngine.today();float big=214;
-    txt(c,String.format(java.util.Locale.CHINA,"%02d",now.get(Calendar.DAY_OF_MONTH)),l,wide?t+big:t+190,big,true,true,BLACK);
+    Calendar now=CalendarEngine.today();float big=230;
+    dateText(c,String.format(java.util.Locale.CHINA,"%02d",now.get(Calendar.DAY_OF_MONTH)),l,wide?t+big:t+202,big);
     float metaY=wide?t+303:t+268;
-    txt(c,now.get(Calendar.YEAR)+"年"+(now.get(Calendar.MONTH)+1)+"月",l,metaY,wide?45:45,true,true,BLACK);
-    txt(c,CalendarEngine.week(now),l,metaY+(wide?68:60),wide?43:43,true,true,BLACK);
+    dateText(c,now.get(Calendar.YEAR)+"年"+(now.get(Calendar.MONTH)+1)+"月",l,metaY,50);
+    dateText(c,CalendarEngine.week(now),l,metaY+(wide?68:60),47);
     float divider=wide?t+395:t+347;line(c,l,divider,wide?r:r-145,divider,1.5f);
     float lunarY=divider+(wide?72:54);
-    txt(c,CalendarEngine.lunarLabel(now),l,lunarY,wide?36:34,true,true,BLACK);
+    dateText(c,CalendarEngine.lunarLabel(now),l,lunarY,wide?39:37);
     String note=CalendarEngine.annotation(now),badge=holidays.badge(now);if(badge.length()>0)note+=(note.length()>0?" · ":"")+("休".equals(badge)?"放假":"调休工作");
-    if(note.length()>0)txt(c,note,l,lunarY+(wide?59:46),wide?35:32,true,true,BLACK);
+    if(note.length()>0)dateText(c,note,l,lunarY+(wide?59:46),wide?37:34);
     hit(l,t,r,b,new Runnable(){public void run(){listener.today();}});
   }
   private void drawWeather(Canvas c,float l,float t,float r,float b,boolean wide){
