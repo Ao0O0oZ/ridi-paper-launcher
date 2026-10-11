@@ -81,8 +81,8 @@ public final class CalendarScreen extends View {
       if(i>1)line(c,x,forecastTop+54,x,b-4,1);
       centered(c,f.label,cx,forecastTop+67,wide?22:20,false,BLACK);
       drawWeatherIcon(c,cx,forecastTop+(wide?115:110),f.code,wide?23:21);
-      centered(c,Weather.description(f.code),cx,forecastTop+(wide?158:153),wide?22:19,false,BLACK);
-      centered(c,Math.round(f.high)+"/"+Math.round(f.low),cx,forecastTop+(wide?192:183),wide?21:19,false,BLACK);
+      centered(c,Weather.description(f.code),cx,forecastTop+(wide?166:161),wide?22:19,false,BLACK);
+      centered(c,Math.round(f.high)+"/"+Math.round(f.low),cx,forecastTop+(wide?198:189),wide?21:19,false,BLACK);
     }
   }
   private void drawPin(Canvas c,float x,float y){p.setColor(BLACK);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3.5f);android.graphics.Path pin=new android.graphics.Path();pin.moveTo(x,y+14);pin.cubicTo(x-20,y-13,x+20,y-13,x,y+14);c.drawPath(pin,p);c.drawCircle(x,y-2,3.5f,p);p.setStyle(Paint.Style.FILL);}
