@@ -51,7 +51,7 @@ public final class NavAccessibilityService extends AccessibilityService {
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        openHomeFromLeftKey();
+                                        handleLeftKey();
                                     }
                                 });
                             }
@@ -69,6 +69,25 @@ public final class NavAccessibilityService extends AccessibilityService {
         }, "RidiLeftKey");
         reader.setDaemon(true);
         reader.start();
+    }
+
+    private void handleLeftKey() {
+        String action = getSharedPreferences("bottom_bar", MODE_PRIVATE)
+                .getString("left_key_action", "home");
+        if ("home".equals(action)) {
+            openHomeFromLeftKey();
+            return;
+        }
+        String serviceAction;
+        if ("back".equals(action)) serviceAction = BottomBarService.ACTION_BACK;
+        else if ("light".equals(action)) serviceAction = BottomBarService.ACTION_TOGGLE_LIGHT;
+        else if ("wifi".equals(action)) serviceAction = BottomBarService.ACTION_TOGGLE_WIFI;
+        else if ("refresh".equals(action)) serviceAction = BottomBarService.ACTION_FULL_REFRESH;
+        else { openHomeFromLeftKey(); return; }
+        Intent command = new Intent(this, BottomBarService.class);
+        command.setAction(serviceAction);
+        startService(command);
+        Log.i(TAG, "Left key action: " + action);
     }
 
     private void openHomeFromLeftKey() {

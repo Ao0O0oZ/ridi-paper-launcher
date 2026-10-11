@@ -32,6 +32,10 @@ import java.util.Locale;
 public final class BottomBarService extends Service {
     private static final String TAG = "RidiBottomBar";
     static final String ACTION_APPLY_SETTINGS = "com.ridi.bottombar.APPLY_SETTINGS";
+    static final String ACTION_BACK = "com.ridi.bottombar.LEFT_KEY_BACK";
+    static final String ACTION_TOGGLE_LIGHT = "com.ridi.bottombar.LEFT_KEY_LIGHT";
+    static final String ACTION_TOGGLE_WIFI = "com.ridi.bottombar.LEFT_KEY_WIFI";
+    static final String ACTION_FULL_REFRESH = "com.ridi.bottombar.LEFT_KEY_REFRESH";
     private static final String FRONT_LIGHT_MODE = "front_light_mode";
     private static final String SCREEN_BRIGHTNESS = "screen_brightness";
     private static final String PREFS = "bottom_bar";
@@ -107,7 +111,12 @@ public final class BottomBarService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_APPLY_SETTINGS.equals(intent.getAction())) {
+        String action = intent == null ? null : intent.getAction();
+        if (ACTION_BACK.equals(action)) goBack();
+        else if (ACTION_TOGGLE_LIGHT.equals(action)) toggleFrontLight();
+        else if (ACTION_TOGGLE_WIFI.equals(action)) toggleWifi();
+        else if (ACTION_FULL_REFRESH.equals(action)) requestFullRefresh();
+        if (ACTION_APPLY_SETTINGS.equals(action)) {
             hideBar();
         }
         if (!isEnabled()) {
@@ -469,6 +478,17 @@ public final class BottomBarService extends Service {
         }
     }
 
+    private void toggleWifi() {
+        WifiManager wifi = (WifiManager) getSystemService(WIFI_SERVICE);
+        if (wifi == null) return;
+        try {
+            wifi.setWifiEnabled(!wifi.isWifiEnabled());
+            updateWifi();
+        } catch (SecurityException error) {
+            Log.e(TAG, "Wi-Fi action failed", error);
+        }
+    }
+
     private void goHome() {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
@@ -479,6 +499,9 @@ public final class BottomBarService extends Service {
 
     /** Force a clean full-screen redraw through the RIDI IMX6 E-Ink View extension. */
     private void requestFullRefresh() {
+        if (windowManager == null) {
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        }
         if (windowManager == null) return;
         final View refreshLayer = new View(this);
         refreshLayer.setBackgroundColor(Color.TRANSPARENT);

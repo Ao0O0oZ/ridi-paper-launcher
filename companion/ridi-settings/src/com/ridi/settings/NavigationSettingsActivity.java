@@ -24,7 +24,7 @@ public final class NavigationSettingsActivity extends BaseActivity {
         enabled.setChecked(preferences.getBoolean("enabled", true));
         content.addView(enabled, full(dp(54)));
         value = note("");
-        height = new SeekBar(this);
+        height = alignedSeekBar(58);
         height.setMax(20);
         height.setProgress(preferences.getInt("height_dp", 46) - 38);
         content.addView(height, full(dp(58)));

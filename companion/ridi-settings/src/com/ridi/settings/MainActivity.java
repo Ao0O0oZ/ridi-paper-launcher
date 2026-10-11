@@ -12,7 +12,6 @@ public final class MainActivity extends BaseActivity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         title("设置");
-        note("针对 RIDI PAPER 与当前精简桌面优化");
         action("Wi-Fi 设置", WifiSettingsActivity.class);
         action("蓝牙设置", BluetoothSettingsActivity.class);
         action("背光设置", LightSettingsActivity.class);
@@ -30,16 +29,9 @@ public final class MainActivity extends BaseActivity {
                 }
             }
         });
-        action("终端模拟器配色", TerminalSettingsActivity.class);
         action("底部导航栏设置", NavigationSettingsActivity.class);
+        action("左侧实体按键设置", LeftKeySettingsActivity.class);
         action("输入法设置与测试", InputSettingsActivity.class);
-        Button advanced = action("高级系统设置", MainActivity.class);
-        advanced.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                Intent intent = new Intent(Settings.ACTION_SETTINGS);
-                startActivity(intent);
-            }
-        });
         Button restartAdb = action("恢复无线 ADB 连接", MainActivity.class);
         restartAdb.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
@@ -71,6 +63,11 @@ public final class MainActivity extends BaseActivity {
                 }, "adb-restart").start();
             }
         });
-        note("无线 ADB 卡住时使用；仅重启调试服务，不重启电纸书。");
+        Button system = action("其他系统设置", MainActivity.class);
+        system.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            }
+        });
     }
 }
